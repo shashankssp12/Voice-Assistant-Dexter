@@ -1,1 +1,1 @@
-            with sr.Microphone() as source:
+processCommand
