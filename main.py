@@ -55,7 +55,7 @@ def processCommand(command):
             else:
                 speak("Failed to fetch data from the API")
     else: 
-        # let openAI handle the code
+        # let openAI handle the code 
         pass
             
 if __name__=='__main__':

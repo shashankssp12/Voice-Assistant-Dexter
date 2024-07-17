@@ -61,4 +61,5 @@ https://pypi.org/project/pyttsx3/
 9. **References**:
    - Documentation pyttsx3 : [link](https://pypi.org/project/pyttsx3/)
    - Documentation speechRecognition : [link](https://pypi.org/project/SpeechRecognition/)
+   - Docuemetation OpenAI API key setup: [link](https://platform.openai.com/docs/introduction)
           
