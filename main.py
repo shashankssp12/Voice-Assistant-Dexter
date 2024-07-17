@@ -3,31 +3,34 @@ import webbrowser
 import pyttsx3
 import time
 
-recognizer = sr.Recognizer()
+recognizer = sr.Recognizer() # Creating an instance of the Recognizer class from the speech rec library
+# `engine = pyttsx3.init()` initializes the pyttsx3 engine, which is a text-to-speech conversion
+# library in Python. This line of code creates an instance of the pyttsx3 engine that can be used to
+# convert text into spoken words.
 engine = pyttsx3.init() #starts pyttxs3
 
 def speak(text):
-    print("Initializing Jarvis")
+    print("Initializing Dexter..")
     engine.say(text)
     engine.runAndWait()
 def processCommand(command):
     print(command)
     if "google" in command.lower():
         webbrowser.open("https://google.com")
-    # elif "open linkedin" in command.lower():
-    #         webbrowser.open("https://linkedin.com")
-    # elif "coding ninjas" in command.lower():
-    #         webbrowser.open("https://codingninjas.com")
-    # elif "open github" in command.lower():
-    #         webbrowser.open("https://github.com")
-    # elif "open youtube" in command.lower():
-    #         webbrowser.open("https://youtube.com")
+    elif "open linkedin" in command.lower():
+            webbrowser.open("https://linkedin.com")
+    elif "coding ninjas" in command.lower():
+            webbrowser.open("https://codingninjas.com")
+    elif "open github" in command.lower():
+            webbrowser.open("https://github.com")
+    elif "open youtube" in command.lower():
+            webbrowser.open("https://youtube.com")
             
             
             
 if __name__=='__main__':
     
-    speak("Initializing Jarvis...")
+    speak("Initializing Dexter...")
     while True:
         # trigger word "Jarvis"
         # obtain audio from the microphone
@@ -36,12 +39,13 @@ if __name__=='__main__':
         # recognize speech using google
         try:
             with sr.Microphone() as source:
+                # print("Say: Hi Eve")
                 print("Listening...")
-                audio = recognizer.listen(source,timeout=2, phrase_time_limit=2) 
-            
+                audio = recognizer.listen(source) 
+
             trigger_word = recognizer.recognize_google(audio)  #voic-input --> command
             print(trigger_word)
-            if "jarvis" in trigger_word.lower():
+            if "dexter" in trigger_word.lower():
                 speak("Sir!")
                 with sr.Microphone() as source:
                     print("Microphone on...")
@@ -49,7 +53,6 @@ if __name__=='__main__':
                     command = recognizer.recognize_google(audio)  #voice-input --> command
                     processCommand(command)
         except Exception as e:
-            print("Error {0}".format(e))
+            print("Parsing..{0}".format(e))
         
-    
     
