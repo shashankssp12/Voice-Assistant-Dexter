@@ -1,6 +1,0 @@
-pyaudio
-speechrecognition
-setuptools
-webbrowser--> builtin no need of install
-pyttsx3-->text to speechrecognition
-pocketsphinx -->
