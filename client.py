@@ -7,11 +7,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Create OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
 
 client = OpenAI(
-  api_key=os.environ.get("API_KEY"),
+  api_key=os.environ.get("OPENAI_API_KEY"),
 )
 
 completion = client.chat.completions.create(

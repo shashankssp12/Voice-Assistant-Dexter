@@ -1,6 +1,6 @@
 # Voice Assistant Project - Dexter
 
-![alt text](img//dexterAi.png)
+![Dexter AI](img//dexterAi.png)
 
 ## Description
 This voice assistant helps with everyday tasks such as setting reminders, searching the web. Built with Python, it leverages speech recognition .

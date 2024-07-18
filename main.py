@@ -3,11 +3,14 @@ import webbrowser
 import pyttsx3
 import musicLibrary
 import time
+import os
 import requests #library to fetch the api and access the methods in it
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 
-# --------------TODO: Make different file for all the sensitive info.
-news_api = "bd7d86a2d1e24e65b1c01c7b961b6253"
+news_api = os.environ.get("NEWS_API_KEY") 
 url = f'https://newsapi.org/v2/top-headlines?country=in&apiKey={news_api}'
 # --------------
 
@@ -27,18 +30,23 @@ def processCommand(command):
     print(command)
     if "google" in command.lower():
         webbrowser.open("https://google.com")
-    elif "open linkedin" in command.lower():
+    elif "linkedin" in command.lower():
             webbrowser.open("https://linkedin.com")
     elif "coding ninjas" in command.lower():
             webbrowser.open("https://codingninjas.com")
-    elif "open github" in command.lower():
+    elif "github" in command.lower():
             webbrowser.open("https://github.com")
-    elif "open youtube" in command.lower():
-            webbrowser.open("https://youtube.com")
+    elif "youtube" in command.lower():
+            webbrowser.open("https://youtube.com") 
     elif command.lower().startswith("play"):
-            song = command.lower().split(" ")[1] #TODO: See how two letter songs can be searched for.
+        
+        song = " ".join(command.lower().split(" ")[1:])
+        print(song)
+        if song in musicLibrary.music:
             link = musicLibrary.music[song]
             webbrowser.open(link)
+        else:
+            speak("Song not found in the music library")
     elif "news" in command.lower():
             response = requests.get(url)
             # Fetch the response from the API
@@ -71,7 +79,7 @@ if __name__=='__main__':
             with sr.Microphone() as source:
                 # print("Say: Hi Dexter")
                 print("Listening...")
-                audio = recognizer.listen(source, timeout=2, phrase_time_limit=1) 
+                audio = recognizer.listen(source, timeout=2, phrase_time_limit=2) 
             trigger_word = recognizer.recognize_google(audio)  #voic-input --> command
             print(trigger_word)
             if "dexter" in trigger_word.lower():
