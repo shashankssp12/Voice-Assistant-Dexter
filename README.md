@@ -1,4 +1,6 @@
-# Voice Assistant Project
+# Voice Assistant Project - Dexter
+
+![alt text](img//dexterAi.png)
 
 ## Description
 This voice assistant helps with everyday tasks such as setting reminders, searching the web. Built with Python, it leverages speech recognition .
@@ -32,7 +34,7 @@ https://pypi.org/project/pyttsx3/
 
 
 1. **Description**:
-   - Clearly describe what your voice assistant does and highlight its main features.
+   - 
 
 2. **Installation**:
    - Include detailed steps on setting up the project.
@@ -50,15 +52,7 @@ https://pypi.org/project/pyttsx3/
    - Explain how to configure the assistant, including any required API keys or settings.
    - Provide examples of configuration files or environment variable setups.
 
-6. **Contributing**:
-   - Outline guidelines for contributing to your project.
-   - Include a link to a detailed CONTRIBUTING.md file if you have one.
-
-7. **License**:
-   - Clearly state the license under which your project is released.
-   - Include a link to the full license text if necessary.
-
-9. **References**:
+6. **References**:
    - Documentation pyttsx3 : [link](https://pypi.org/project/pyttsx3/)
    - Documentation speechRecognition : [link](https://pypi.org/project/SpeechRecognition/)
    - Docuemetation OpenAI API key setup: [link](https://platform.openai.com/docs/introduction)
