@@ -6,6 +6,7 @@ import time
 import os
 import requests #library to fetch the api and access the methods in it
 from dotenv import load_dotenv
+from openai import OpenAI
 
 # Load environment variables from .env file
 load_dotenv()
@@ -63,8 +64,26 @@ def processCommand(command):
             else:
                 speak("Failed to fetch data from the API")
     else: 
-        # let openAI handle the code 
-        pass
+        response_ai = processAI(command)
+        print(response_ai)
+        speak(response_ai)
+      
+      
+      
+def processAI(command):
+    
+# Creating OpenAI client
+    client = OpenAI(
+      api_key=os.environ.get("OPENAI_API_KEY"),
+    )
+    completion = client.chat.completions.create(
+      model="gpt-3.5-turbo",
+      messages=[
+        {"role": "system", "content": "You are a virtual named Dexter skilled in general tasks, gives short yet resourceful answers like assistant like Alexa , google cloud and jarvis"},
+        {"role": "user", "content": command}
+      ]
+    )
+    return completion.choices[0].message.content
             
 if __name__=='__main__':
     
