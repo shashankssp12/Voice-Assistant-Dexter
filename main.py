@@ -9,27 +9,31 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 # Load environment variables from .env file
-load_dotenv()
+load_dotenv() 
 
 news_api = os.environ.get("NEWS_API_KEY") 
 url = f'https://newsapi.org/v2/top-headlines?country=in&apiKey={news_api}'
 # --------------
 
+recognizer = sr.Recognizer() #recognizes the audio
+engine = pyttsx3.init() #text-to-speech engine
 
 
-recognizer = sr.Recognizer() # Creating an instance of the Recognizer class from the speech rec library
-# `engine = pyttsx3.init()` initializes the pyttsx3 engine, which is a text-to-speech conversion
-# library in Python. This line of code creates an instance of the pyttsx3 engine that can be used to
-# convert text into spoken words.
-engine = pyttsx3.init() #starts pyttxs3
 
+# Function to speak the text
 def speak(text):
-    print("Initializing Dexter..")
+    print(text)
     engine.say(text)
     engine.runAndWait()
+
+# Function to process the command
 def processCommand(command):
     print(command)
-    if "google" in command.lower():
+    if "vs code" in command.lower():
+        os.system("code")
+    elif "notepad" in command.lower():
+        os.system("notepad")
+    elif "google" in command.lower():
         webbrowser.open("https://google.com")
     elif "linkedin" in command.lower():
             webbrowser.open("https://linkedin.com")
@@ -40,7 +44,6 @@ def processCommand(command):
     elif "youtube" in command.lower():
             webbrowser.open("https://youtube.com") 
     elif command.lower().startswith("play"):
-        
         song = " ".join(command.lower().split(" ")[1:])
         print(song)
         if song in musicLibrary.music:
@@ -67,12 +70,9 @@ def processCommand(command):
         response_ai = processAI(command)
         print(response_ai)
         speak(response_ai)
-      
-      
-      
-def processAI(command):
-    
-# Creating OpenAI client
+         
+# Creating OpenAI client and processing the command
+def processAI(command):    
     client = OpenAI(
       api_key=os.environ.get("OPENAI_API_KEY"),
     )
@@ -84,31 +84,35 @@ def processAI(command):
       ]
     )
     return completion.choices[0].message.content
-            
+
+def greetUser():
+    hour = int(time.strftime("%H"))
+    if hour >= 0 and hour < 12:
+        speak("Good Morning Sir!")
+        print("Good Morning Sir!")
+    elif hour >= 12 and hour < 18:
+        speak("Good Afternoon Sir!")
+        print("Good Afternoon Sir!")
+    else:
+        speak("Good Evening Sir!")
+        print("Good Evening Sir!")
+    speak("How may I help you today?")
+
+def takeCommand():
+    with sr.Microphone() as source:
+        print("Listening...")
+        recognizer.pause_threshold = 1
+        audio = recognizer.listen(source)
+        try:
+            print("Recognizing...")
+            query = recognizer.recognize_google(audio, language='en-in')
+            print(f"User said: {query}\n")
+        except Exception as e:
+            print("Say that again please...")
+            return "None"
+        return query
+# Main function
 if __name__=='__main__':
     
-    speak("Initializing Dexter...")
-    while True:
-        # trigger word "dexter"
-        # obtain audio from the microphone
-            
-        print("recongnizing...")
-        # recognize speech using google
-        try:
-            with sr.Microphone() as source:
-                # print("Say: Hi Dexter")
-                print("Listening...")
-                audio = recognizer.listen(source, timeout=2, phrase_time_limit=2) 
-            trigger_word = recognizer.recognize_google(audio)  #voic-input --> command
-            print(trigger_word)
-            if "dexter" in trigger_word.lower():
-                speak("Sir!")
-                with sr.Microphone() as source:
-                    print("Say the command on...")
-                    audio = recognizer.listen(source)
-                    command = recognizer.recognize_google(audio)  #voice-input --> command
-                    processCommand(command)
-        except Exception as e:
-            print("Parsing..{0}".format(e))
+    pass
         
-    
