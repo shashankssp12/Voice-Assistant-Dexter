@@ -113,6 +113,6 @@ def takeCommand():
         return query
 # Main function
 if __name__=='__main__':
-    
-    pass
-        
+    greetUser()
+    takeCommand()
+    processCommand()
