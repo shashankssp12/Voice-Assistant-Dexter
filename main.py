@@ -28,7 +28,7 @@ def speak(text):
 
 # Function to process the command
 def processCommand(command):
-    print(command)
+    
     if "vs code" in command.lower():
         os.system("code")
     elif "notepad" in command.lower():
@@ -68,9 +68,8 @@ def processCommand(command):
                 speak("Failed to fetch data from the API")
     else: 
         response_ai = processAI(command)
-        print(response_ai)
         speak(response_ai)
-         
+    
 # Creating OpenAI client and processing the command
 def processAI(command):    
     client = OpenAI(
@@ -89,13 +88,10 @@ def greetUser():
     hour = int(time.strftime("%H"))
     if hour >= 0 and hour < 12:
         speak("Good Morning Sir!")
-        print("Good Morning Sir!")
     elif hour >= 12 and hour < 18:
         speak("Good Afternoon Sir!")
-        print("Good Afternoon Sir!")
     else:
         speak("Good Evening Sir!")
-        print("Good Evening Sir!")
     speak("How may I help you today?")
 
 def takeCommand():
@@ -105,14 +101,28 @@ def takeCommand():
         audio = recognizer.listen(source)
         try:
             print("Recognizing...")
+            print("You said: ", recognizer.recognize_google(audio, language='en-in'))
             query = recognizer.recognize_google(audio, language='en-in')
             print(f"User said: {query}\n")
         except Exception as e:
             print("Say that again please...")
-            return "None"
+            return ""
         return query
 # Main function
 if __name__=='__main__':
+    speak("Initializing Dexter...")
     greetUser()
-    takeCommand()
-    processCommand()
+    while True:
+        try:
+            command = takeCommand().lower()
+            if "dexter" in command.lower():
+                speak("Sir")
+                query = takeCommand()
+                if "exit" in query.lower():
+                    speak("Goodbye Sir!")
+                    break
+                processCommand(query)
+            else:
+                speak("I am not activated. Please say Dexter to activate me.")
+        except Exception as e:
+            print("Error while Parsing" , e)
