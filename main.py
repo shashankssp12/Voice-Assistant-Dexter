@@ -97,32 +97,39 @@ def greetUser():
 def takeCommand():
     with sr.Microphone() as source:
         print("Listening...")
-        recognizer.pause_threshold = 1
-        audio = recognizer.listen(source)
+        
+        # recognizer.pause_threshold = 1 #seconds of non-speaking audio before a phrase is considered complete 
+    
+        audio = recognizer.listen(source , timeout=2 #
+                                  , phrase_time_limit=2 #
+                                  ) #listening to the source
         try:
             print("Recognizing...")
-            print("You said: ", recognizer.recognize_google(audio, language='en-in'))
             query = recognizer.recognize_google(audio, language='en-in')
-            print(f"User said: {query}\n")
+            print("You said: "+query)            
         except Exception as e:
             print("Say that again please...")
-            return ""
+            print(e)
+            
         return query
-# Main function
-if __name__=='__main__':
+
+
+if __name__=='__main__': 
     speak("Initializing Dexter...")
     greetUser()
     while True:
         try:
-            command = takeCommand().lower()
-            if "dexter" in command.lower():
+            trigger_word = takeCommand().lower()
+            if "dexter" in trigger_word.lower():
                 speak("Sir")
-                query = takeCommand()
-                if "exit" in query.lower():
+                command = takeCommand()
+                if "exit" in command.lower():
                     speak("Goodbye Sir!")
                     break
-                processCommand(query)
+                else:
+                    processCommand(command)
             else:
                 speak("I am not activated. Please say Dexter to activate me.")
+                
         except Exception as e:
             print("Error while Parsing" , e)
