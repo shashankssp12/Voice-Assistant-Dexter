@@ -2,57 +2,98 @@
 
 ![Dexter AI](img//dexterAi.png)
 
-## Description
-This voice assistant helps with everyday tasks such as setting reminders, searching the web. Built with Python, it leverages speech recognition .
 
-## Table of Contents
-- [Installation](#installation)
-- [Usage](#usage)
-- [Features](#features)
-- [Configuration](#configuration)
-- [Contributing](#contributing)
-- [License](#license)
-- [References](#references)
+# Dexter AI Assistant
 
-## Installation
+Dexter AI Assistant is a Python-based virtual assistant designed to respond to voice commands, perform various tasks, and provide information. Inspired by popular assistants like Siri and Alexa, Dexter aims to deliver a user-friendly and efficient experience.
 
-### Prerequisites
-- Python 3.8+
-- pip
+# Features
 
-### Steps
+- **Voice Commands**: Dexter can open applications, browse websites, play music, fetch news, and more through voice commands.
+- **Text-to-Speech**: Uses `pyttsx3` for converting text responses to speech.
+- **Speech Recognition**: Uses `speech_recognition` to process and understand user commands.
+- **API Integration**: Integrates with the NewsAPI to fetch the latest news headlines.
+- **Custom Responses**: Uses OpenAI's GPT-3.5-turbo to generate responses for unrecognized commands.
+
+# What did I Learn?
+
+- **API Integration**: Learned how to integrate and fetch data from external APIs.
+- **Environment Variables**: Utilized environment variables to securely manage API keys and other sensitive information using the `dotenv` library.
+- **Libraries Used**:
+  - `speech_recognition`: For capturing and recognizing speech.
+  - `pyttsx3`: For converting text to speech.
+  - `webbrowser`: For opening websites.
+  - `requests`: For making HTTP requests to APIs.
+  - `dotenv`: For managing environment variables.
+  - `OpenAI`: For generating AI responses.
+
+# Ongoing Improvements
+
+- **Web Scraping via Voice Commands**: Working on the ability to scrape data from websites based on voice commands.
+- **Enhanced Voice Recognition**: Improving the speed and accuracy of voice recognition to reduce latency and increase responsiveness.
+- **Setting Alarms**: Adding functionality to set alarms and reminders through voice commands.
+
+# **Getting Started**
+
+# Prerequisites
+
+- Python 3.x
+- Pip (Python package installer)
+
+### Installation
+
 1. Clone the repository:
+
    ```bash
-   git clone https://github.com/yourusername/voice-assistant.git
-   cd voice-assistant
+   git clone https://github.com/yourusername/dexter-ai-assistant.git
+   cd dexter-ai-assistant
+   ```
 
+2. Install the required libraries:
 
-https://pypi.org/project/pyttsx3/
+   ```bash
+   pip install -r requirements.txt
+   ```
 
+3. Create a `.env` file in the project directory and add your API keys:
 
+   ```plaintext
+   NEWS_API_KEY=your_news_api_key
+   OPENAI_API_KEY=your_openai_api_key
+   ```
 
+### Running the Assistant
 
+1. Start the Dexter AI Assistant:
 
-1. **Description**:
-   - 
+   ```bash
+   python dexter.py
+   ```
 
-2. **Installation**:
-   - Include detailed steps on setting up the project.
-   - Update this section with any changes in dependencies or setup procedures.
+2. Speak the trigger word "Dexter" followed by your command.
 
-3. **Usage**:
-   - Provide clear instructions on how to run and use the voice assistant.
-   - Add example commands or scenarios to illustrate usage.
+### Example Commands
 
-4. **Features**:
-   - List all the key features of your voice assistant.
-   - Update this section as you add new functionalities.
+- "Dexter, open VS Code"
+- "Dexter, play my favorite song"
+- "Dexter, what's the latest news?"
 
-5. **Configuration**:
-   - Explain how to configure the assistant, including any required API keys or settings.
-   - Provide examples of configuration files or environment variable setups.
+## Contributing
 
-6. **References**:
+Feel free to submit issues, feature requests, and pull requests. Contributions are welcome!
+
+## License
+
+This project is licensed under the MIT License.
+
+## Contact
+
+For any inquiries, please contact:
+
+- Your Name: Shashank Shekhar Pandey
+- Email: shashankspandey12@gmail.com
+
+ ## **References:**
    - Documentation pyttsx3 : [link](https://pypi.org/project/pyttsx3/)
    - Documentation speechRecognition : [link](https://pypi.org/project/SpeechRecognition/)
    - Docuemetation OpenAI API key setup: [link](https://platform.openai.com/docs/introduction)
