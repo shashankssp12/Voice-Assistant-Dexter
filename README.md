@@ -1,7 +1,11 @@
 # Voice Assistant Project - Dexter
 
-![Dexter AI](img//dexterAi.png)
+![Dexter AI link: https://youtu.be/P6a-EPebzmg](img//dexterAi.png)
 
+
+## Watch the Demo Video
+
+[![Watch the video](https://img.youtube.com/vi/P6a-EPebzmg/0.jpg)](https://youtu.be/P6a-EPebzmg)
 
 # Dexter AI Assistant
 
