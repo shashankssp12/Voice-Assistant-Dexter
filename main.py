@@ -1,5 +1,5 @@
 import speech_recognition as sr
-import webbrowser
+import webbrowser #
 import pyttsx3
 import musicLibrary
 import time
@@ -68,7 +68,7 @@ def processCommand(command):
                 speak("Failed to fetch data from the API")
     else: 
         response_ai = processAI(command)
-        speak(response_ai)
+        speak(response_ai) 
     
 # Creating OpenAI client and processing the command
 def processAI(command):    
@@ -78,7 +78,7 @@ def processAI(command):
     completion = client.chat.completions.create(
       model="gpt-3.5-turbo",
       messages=[
-        {"role": "system", "content": "You are a virtual named Dexter skilled in general tasks, gives short yet resourceful answers like assistant like Alexa , google cloud and jarvis"},
+        {"role": "system", "content": "You are a virtual assistant named Dexter. Give short yet resourceful answers like Alexa , google cloud and jarvis from the iron man picture."},
         {"role": "user", "content": command}
       ]
     )
@@ -92,6 +92,7 @@ def greetUser():
         speak("Good Afternoon Sir!")
     else:
         speak("Good Evening Sir!")
+    speak("The current time is " + time.strftime("%I:%M %p"))
     speak("How may I help you today?")
 
 def takeCommand():
@@ -120,7 +121,7 @@ if __name__=='__main__':
     while True:
         try:
             trigger_word = takeCommand().lower()
-            if "dexter" in trigger_word.lower():
+            if "dexter" or "desktop" or "next" or "extra" or "dex" or "desk" in trigger_word.lower(): #I havent added 'text' or 'start' or 'xender' as the trigger words , but still it is working and I am not able to understand why 
                 speak("Sir")
                 command = takeCommand()
                 if "exit" in command.lower():
