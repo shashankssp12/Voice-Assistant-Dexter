@@ -1,4 +1,3 @@
-import speech_recognition as sr
 import webbrowser 
 import pyttsx3
 import musicLibrary
@@ -27,7 +26,6 @@ DEEPGRAM_API_KEY = os.environ.get("DEEPGRAM_API_KEY")
 
 # --------------
 
-recognizer = sr.Recognizer() #recognizes the audio
 engine = pyttsx3.init() #text-to-speech engine
 
 
