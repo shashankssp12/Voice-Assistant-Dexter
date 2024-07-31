@@ -1,14 +1,4 @@
 import os
-from dotenv import load_dotenv
-
-load_dotenv() 
-
-API_KEY = os.environ.get("DEEPGRAM_API_KEY")
-
-DEEPGRAM_URL = 'wss://api.deepgram.com/v1/listen'
-
-# Example filename: main.py
-import os
 import httpx
 from dotenv import load_dotenv
 import threading
@@ -18,6 +8,11 @@ from deepgram import (
     LiveTranscriptionEvents,
     LiveOptions,
 )
+
+API_KEY = os.environ.get("DEEPGRAM_API_KEY")
+
+DEEPGRAM_URL = 'wss://api.deepgram.com/v1/listen'
+
 
 load_dotenv()
 
