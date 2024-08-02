@@ -25,7 +25,11 @@ from deepgram import (
 )
 load_dotenv()
 
+
+
 # for playing audio: 
+from text_to_speech import TextToSpeech
+
 from pydub import AudioSegment
 from pydub.playback import play
 #--------------------------------
@@ -35,39 +39,44 @@ from pydub.playback import play
 news_api = os.environ.get("NEWS_API_KEY") 
 url = f'https://newsapi.org/v2/top-headlines?country=in&apiKey={news_api}'
 DEEPGRAM_API_KEY = os.environ.get("DEEPGRAM_API_KEY")
-DEEPGRAM_URL = "https://api.deepgram.com/v1/speak?model=aura-orion-en"
+DEEPGRAM_URL = "https://api.deepgram.com/v1/speak?model=aura-orpheus-en"
 
 is_finals = []
 
 
+tts = TextToSpeech() 
 
-def save_response_as_audio(response):
+def play_response(response):
     print("Dexter: " + response)
-    payload = {
-        "text": response 
-            }
+    tts.speak(response)
 
-    headers = {
-        "Authorization": f"Token {DEEPGRAM_API_KEY}",
-        "Content-Type": "application/json"
-    }
+# def save_response_as_audio(response):
+    # print("Dexter: " + response)
+    # payload = {
+    #     "text": response 
+    #         }
 
-    audio_file_path = "output_TTS.wav"  # Path to save the audio file
+    # headers = {
+    #     "Authorization": f"Token {DEEPGRAM_API_KEY}",
+    #     "Content-Type": "application/json"
+    # }
 
-    with open(audio_file_path, 'wb') as file_stream:
-        response = requests.post(DEEPGRAM_URL, headers=headers, json=payload, stream=True)
-        for chunk in response.iter_content(chunk_size=1024):
-            if chunk:
-                file_stream.write(chunk) # Write each chunk of audio data to the file
+    # audio_file_path = "output_TTS.wav"  # Path to save the audio file
 
-    print("Audio download complete")
-    # Play the audio file
-    audio = AudioSegment.from_file(audio_file_path)
-    play(audio)
+    # with open(audio_file_path, 'wb') as file_stream:
+    #     response = requests.post(DEEPGRAM_URL, headers=headers, json=payload, stream=True)
+    #     for chunk in response.iter_content(chunk_size=1024):
+    #         if chunk:
+    #             file_stream.write(chunk) # Write each chunk of audio data to the file
+    # print("Audio download complete")
 
-    # Delete the audio file after playback
-    os.remove(audio_file_path)
-    print("Audio file deleted")
+    # # Play the audio file
+    # audio = AudioSegment.from_file(audio_file_path)
+    # play(audio)
+
+    # # Delete the audio file after playback
+    # os.remove(audio_file_path)
+    # print("Audio file deleted")
 
 
 def process_input():
@@ -95,14 +104,15 @@ def process_input():
                     # processAI(utterance)
                     # speak(utterance)
                     if "exit" in utterance.lower():
-                        speak_advance("Goodbye Sir!")
-                        return
+                        play_response("Goodbye Sir!")
+                        dg_connection.close()
+                        print("Exiting Dexter...")
                     else:
-                      processAI(utterance)
+                      processCommand(utterance)
                     is_finals = []
                 else:
                     # These are useful if you need real time captioning and update what the Interim Results produced
-                    print(f"Is Final: {sentence}")
+                    print(f"Waiting to complete sentence: {sentence}")
 
         def on_metadata(self, metadata, **kwargs):
             print(f"Metadata: {metadata}")
@@ -157,7 +167,8 @@ def process_input():
         microphone.start()
 
         # wait until finished
-        input("")
+        
+        input("Press enter to stop ...")
 
         # Wait for the microphone to close
         microphone.finish()
@@ -176,13 +187,13 @@ def process_input():
 def greetUser():
     hour = int(time.strftime("%H"))
     if hour >= 0 and hour < 12:
-        speak("Good Morning Sir!")
+        play_response("Good Morning Sir!")
     elif hour >= 12 and hour < 18:
-        speak("Good Afternoon Sir!")
+        play_response("Good Afternoon Sir!")
     else:
-        speak("Good Evening Sir!")
-    speak("The current time is " + time.strftime("%I:%M %p"))
-    speak("How do you want me to assist you today?")
+        play_response("Good Evening Sir!")
+    play_response("The current time is " + time.strftime("%I:%M %p"))
+    play_response("How do you want me to assist you today?")
     
 def processCommand(command):
     
@@ -208,7 +219,7 @@ def processCommand(command):
             webbrowser.open(link)
         else:
             
-            save_response_as_audio("Song not found in the music library")
+            play_response("Song not found in the music library")
     elif "news" in command.lower():
             response = requests.get(url)
             # Fetch the response from the API
@@ -221,12 +232,12 @@ def processCommand(command):
                 headlines = [article['title'] for article in data['articles'][:5:]]
                 # Print the headlines
                 for i, headline in enumerate(headlines, start=1):
-                    save_response_as_audio(f"{i}. {headline}")
+                    play_response(f"{i}. {headline}")
             else:
-                save_response_as_audio("Failed to fetch data from the API")
+                play_response("Failed to fetch data from the API")
     else: 
         response_ai = processAI(command)
-        save_response_as_audio(response_ai) 
+        play_response(response_ai) 
         
 
 def processAI(command):    
@@ -240,18 +251,20 @@ def processAI(command):
                             {"role": "user", "content": command}
                         ]
                         )
-                        save_response_as_audio(completion.choices[0].message.content)
+                        # play_response(completion.choices[0].message.content)
                          
-                        # return completion.choices[0].message.content
+                        return completion.choices[0].message.content
 
 
 if __name__=='__main__':
     
     # speak_asave_response_as_audio("Initializing Dexter...") # use cached audio
     # play_audio("initializing_audio.mp3")
-    print("Initializing Dexter...")
     # greetUser()
     try: 
+        print("Initializing Dexter...")
+        play_response("Initializing Dexter, how can I assist you today?")
+        # time.sleep(2)
         # while True:
         process_input()
         print("Done")
