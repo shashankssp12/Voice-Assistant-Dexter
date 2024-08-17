@@ -1,42 +1,200 @@
+
 import webbrowser 
 import pyttsx3
 import musicLibrary
-import time
 import os
-import requests #library to fetch the api and access the methods in it
+import requests 
 from dotenv import load_dotenv
-from openai import OpenAI
+import time
 import asyncio
-
-from deepgram import (
-    DeepgramClient,
-    PrerecordedOptions,
-    FileSource,
-)
 import pyaudio
 import wave
+import logging
+import pygame
+# from playAudio import play_audio
+from deepgram.utils import verboselogs
+# from TTS import save_response_as_audio, play_audio
+from openai import OpenAI
+from deepgram import (
+    DeepgramClient,
+    DeepgramClientOptions,
+    LiveTranscriptionEvents,
+    LiveOptions,
+    Microphone,
+    SpeakOptions,
+)
+load_dotenv()
 
-# Load environment variables from .env file
-load_dotenv() 
+
+
+# for playing audio: 
+from text_to_speech import TextToSpeech
+
+from pydub import AudioSegment
+from pydub.playback import play
+#--------------------------------
+
+
 
 news_api = os.environ.get("NEWS_API_KEY") 
 url = f'https://newsapi.org/v2/top-headlines?country=in&apiKey={news_api}'
-
 DEEPGRAM_API_KEY = os.environ.get("DEEPGRAM_API_KEY")
+DEEPGRAM_URL = "https://api.deepgram.com/v1/speak?model=aura-orpheus-en"
 
-# --------------
-
-engine = pyttsx3.init() #text-to-speech engine
-
+is_finals = []
 
 
-# Function to speak the text
-def speak(text):
-    print(text)
-    engine.say(text)
-    engine.runAndWait()
+tts = TextToSpeech() 
 
-# Function to process the command
+def play_response(response):
+    print("Dexter: " + response)
+    tts.speak(response)
+
+# def save_response_as_audio(response):
+    # print("Dexter: " + response)
+    # payload = {
+    #     "text": response 
+    #         }
+
+    # headers = {
+    #     "Authorization": f"Token {DEEPGRAM_API_KEY}",
+    #     "Content-Type": "application/json"
+    # }
+
+    # audio_file_path = "output_TTS.wav"  # Path to save the audio file
+
+    # with open(audio_file_path, 'wb') as file_stream:
+    #     response = requests.post(DEEPGRAM_URL, headers=headers, json=payload, stream=True)
+    #     for chunk in response.iter_content(chunk_size=1024):
+    #         if chunk:
+    #             file_stream.write(chunk) # Write each chunk of audio data to the file
+    # print("Audio download complete")
+
+    # # Play the audio file
+    # audio = AudioSegment.from_file(audio_file_path)
+    # play(audio)
+
+    # # Delete the audio file after playback
+    # os.remove(audio_file_path)
+    # print("Audio file deleted")
+
+
+def process_input():
+    
+    try:
+        deepgram: DeepgramClient = DeepgramClient()
+
+        dg_connection = deepgram.listen.websocket.v("1")
+
+        def on_open(self, open, **kwargs):
+            print("Connection Open")
+
+        def on_message(self, result, **kwargs):
+            global is_finals
+            sentence = result.channel.alternatives[0].transcript
+            if len(sentence) == 0:
+                return
+            if result.is_final:
+                # Speech Final means we have detected sufficent silence to consider this end of speech
+                is_finals.append(sentence)
+                if result.speech_final:
+                    utterance = " ".join(is_finals)
+                    
+                    print(f"User: {utterance}")
+                    # processAI(utterance)
+                    # speak(utterance)
+                    if "exit" in utterance.lower():
+                        play_response("Goodbye Sir!")
+                        dg_connection.close()
+                        print("Exiting Dexter...")
+                    else:
+                      processCommand(utterance)
+                    is_finals = []
+                else:
+                    # These are useful if you need real time captioning and update what the Interim Results produced
+                    print(f"Waiting to complete sentence: {sentence}")
+
+        def on_metadata(self, metadata, **kwargs):
+            print(f"Metadata: {metadata}")
+
+        def on_close(self, close, **kwargs):
+            print("Connection Closed")
+
+        def on_error(self, error, **kwargs):
+            print(f"Handled Error: {error}")
+
+        def on_unhandled(self, unhandled, **kwargs):
+            print(f"Unhandled Websocket Message: {unhandled}")
+
+        dg_connection.on(LiveTranscriptionEvents.Open, on_open)
+        dg_connection.on(LiveTranscriptionEvents.Transcript, on_message)
+        dg_connection.on(LiveTranscriptionEvents.Metadata, on_metadata)
+        dg_connection.on(LiveTranscriptionEvents.Close, on_close)
+        dg_connection.on(LiveTranscriptionEvents.Error, on_error)
+        dg_connection.on(LiveTranscriptionEvents.Unhandled, on_unhandled)
+    
+        options: LiveOptions = LiveOptions(
+            model="nova-2",
+            language="en-IN",
+            # Apply smart formatting to the output
+            smart_format=True,
+            # Raw audio format details
+            encoding="linear16",
+            channels=1,
+            sample_rate=16000,
+            # To get UtteranceEnd, the following must be set:
+            interim_results=True,
+            utterance_end_ms="1000",
+            vad_events=True,
+            # Time in milliseconds of silence to wait for before finalizing speech
+            endpointing=300,
+        )
+
+        addons = {
+            # Prevent waiting for additional numbers
+            "no_delay" : "true"
+        }
+
+        print("\n\nListening...")
+        if dg_connection.start(options, addons=addons) is False:
+            print("Failed to connect to Deepgram")
+            return
+
+        # Open a microphone stream on the default input device
+        microphone = Microphone(dg_connection.send)
+
+        # start microphone
+        microphone.start()
+
+        # wait until finished
+        
+        input("Press enter to stop ...")
+
+        # Wait for the microphone to close
+        microphone.finish()
+
+        # Indicate that we've finished
+        dg_connection.finish()
+
+        print("Finished")
+        # sleep(30)  # wait 30 seconds to see if there is any additional socket activity
+        # print("Really done!")
+
+    except Exception as e:
+        print(f"Could not open socket: {e}")
+        return
+    
+def greetUser():
+    hour = int(time.strftime("%H"))
+    if hour >= 0 and hour < 12:
+        play_response("Good Morning Sir!")
+    elif hour >= 12 and hour < 18:
+        play_response("Good Afternoon Sir!")
+    else:
+        play_response("Good Evening Sir!")
+    play_response("The current time is " + time.strftime("%I:%M %p"))
+    play_response("How do you want me to assist you today?")
+    
 def processCommand(command):
     
     if "vs code" in command.lower():
@@ -60,7 +218,8 @@ def processCommand(command):
             link = musicLibrary.music[song]
             webbrowser.open(link)
         else:
-            speak("Song not found in the music library")
+            
+            play_response("Song not found in the music library")
     elif "news" in command.lower():
             response = requests.get(url)
             # Fetch the response from the API
@@ -73,124 +232,41 @@ def processCommand(command):
                 headlines = [article['title'] for article in data['articles'][:5:]]
                 # Print the headlines
                 for i, headline in enumerate(headlines, start=1):
-                    speak(f"{i}. {headline}")
+                    play_response(f"{i}. {headline}")
             else:
-                speak("Failed to fetch data from the API")
+                play_response("Failed to fetch data from the API")
     else: 
         response_ai = processAI(command)
-        speak(response_ai) 
-    
-# Creating OpenAI client and processing the command
+        play_response(response_ai) 
+        
+
 def processAI(command):    
-    client = OpenAI(
-      api_key=os.environ.get("OPENAI_API_KEY"),
-    )
-    completion = client.chat.completions.create(
-      model="gpt-3.5-turbo",
-      messages=[
-        {"role": "system", "content": "You are a virtual assistant named Dexter. Give short yet resourceful answers like Alexa , google cloud and jarvis from the iron man picture."},
-        {"role": "user", "content": command}
-      ]
-    )
-    return completion.choices[0].message.content
+                        client = OpenAI(
+                        api_key=os.environ.get("OPENAI_API_KEY"),
+                        )
+                        completion = client.chat.completions.create(
+                        model="gpt-3.5-turbo",
+                        messages=[
+                            {"role": "system", "content": "You are a virtual assistant named Dexter. Give short yet resourceful answers like Alexa , google cloud and jarvis from the iron man picture."},
+                            {"role": "user", "content": command}
+                        ]
+                        )
+                        # play_response(completion.choices[0].message.content)
+                         
+                        return completion.choices[0].message.content
 
-def greetUser():
-    hour = int(time.strftime("%H"))
-    if hour >= 0 and hour < 12:
-        speak("Good Morning Sir!")
-    elif hour >= 12 and hour < 18:
-        speak("Good Afternoon Sir!")
-    else:
-        speak("Good Evening Sir!")
-    speak("The current time is " + time.strftime("%I:%M %p"))
-    speak("How may I help you today?")
+
+if __name__=='__main__':
     
-    
-    
-    
-    
-def record_audio(output_filename, record_seconds=5, sample_rate=44100, chunk_size=1024):
-    audio_format = pyaudio.paInt16  # 16-bit resolution
-    channels = 1  # Mono
-
-    audio = pyaudio.PyAudio()
-
-    # Start Recording
-    stream = audio.open(format=audio_format, channels=channels,
-                        rate=sample_rate, input=True,
-                        frames_per_buffer=chunk_size)
-    print("Recording...")
-    frames = []
-
-    for _ in range(0, int(sample_rate / chunk_size * record_seconds)):
-        data = stream.read(chunk_size)
-        frames.append(data)
-
-    print("Finished recording.")
-
-    # Stop Recording
-    stream.stop_stream()
-    stream.close()
-    audio.terminate()
-
-    # Save the recorded data as a WAV file
-    with wave.open(output_filename, 'wb') as wf:
-        wf.setnchannels(channels)
-        wf.setsampwidth(audio.get_sample_size(audio_format))
-        wf.setframerate(sample_rate)
-        wf.writeframes(b''.join(frames))
-
-
-def take_command(): # also returns the text from the audio
-   
-    record_audio('command.wav')
-    AUDIO_FILE = "command.wav"
-    try:
-        # STEP 1 Create a Deepgram client using the API key
-        deepgram = DeepgramClient(DEEPGRAM_API_KEY)
-
-        with open(AUDIO_FILE, "rb") as file:
-            buffer_data = file.read()
-
-        payload: FileSource = {
-            "buffer": buffer_data,
-        }
-
-        #STEP 2: Configure Deepgram options for audio analysis
-        options = PrerecordedOptions(
-            model="nova-2",
-            smart_format=True,
-        )
-
-        # STEP 3: Call the transcribe_file method with the text payload and options
-        response = deepgram.listen.prerecorded.v("1").transcribe_file(payload, options)
-
-        # STEP 4: Print the response
-        return response.results.channels[0].alternatives[0].transcript
-
+    # speak_asave_response_as_audio("Initializing Dexter...") # use cached audio
+    # play_audio("initializing_audio.mp3")
+    # greetUser()
+    try: 
+        print("Initializing Dexter...")
+        play_response("Initializing Dexter, how can I assist you today?")
+        # time.sleep(2)
+        # while True:
+        process_input()
+        print("Done")
     except Exception as e:
-        print(f"Exception: {e}")
-
-
-
-if __name__=='__main__': 
-    
-    # call_out = ["dexter", "desktop", "next", "extra", "dex", "desk"]
-    speak("Initializing Dexter...")
-    greetUser()
-    while True:
-        try:
-            trigger_word = take_command()
-            print(trigger_word)
-            if "dexter" in trigger_word.lower():
-                speak("Sir")
-                command = take_command()
-                if "exit" in command.lower():
-                    speak("Goodbye Sir!")
-                    break
-                else:
-                    processCommand(command)
-            else:
-                speak("I am not activated. Please say Dexter to activate me.")
-        except Exception as e:
-            print("Error while Parsing", e)
+        print("Error while Parsing", e)
