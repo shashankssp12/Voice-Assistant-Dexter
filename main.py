@@ -1,19 +1,12 @@
-
-import webbrowser 
-import pyttsx3
-import musicLibrary
 import os
-import requests 
 from dotenv import load_dotenv
+import requests 
+import webbrowser 
+import musicLibrary
 import time
-import asyncio
-import pyaudio
-import wave
 import logging
 import pygame
-# from playAudio import play_audio
 from deepgram.utils import verboselogs
-# from TTS import save_response_as_audio, play_audio
 from openai import OpenAI
 from deepgram import (
     DeepgramClient,
@@ -23,23 +16,19 @@ from deepgram import (
     Microphone,
     SpeakOptions,
 )
-load_dotenv()
 
-
-
-# for playing audio: 
+# ----------------for playing audio: ----------
 from text_to_speech import TextToSpeech
-
 from pydub import AudioSegment
 from pydub.playback import play
-#--------------------------------
+#-----------------------------------------------
 
 
+load_dotenv()
 
 news_api = os.environ.get("NEWS_API_KEY") 
 url = f'https://newsapi.org/v2/top-headlines?country=in&apiKey={news_api}'
 DEEPGRAM_API_KEY = os.environ.get("DEEPGRAM_API_KEY")
-DEEPGRAM_URL = "https://api.deepgram.com/v1/speak?model=aura-orpheus-en"
 
 is_finals = []
 
@@ -48,35 +37,12 @@ tts = TextToSpeech()
 
 def play_response(response):
     print("Dexter: " + response)
-    tts.speak(response)
+    try:
+        tts.speak(response)
+    except Exception as e:
+        print("Error while playing response", e)
+        
 
-# def save_response_as_audio(response):
-    # print("Dexter: " + response)
-    # payload = {
-    #     "text": response 
-    #         }
-
-    # headers = {
-    #     "Authorization": f"Token {DEEPGRAM_API_KEY}",
-    #     "Content-Type": "application/json"
-    # }
-
-    # audio_file_path = "output_TTS.wav"  # Path to save the audio file
-
-    # with open(audio_file_path, 'wb') as file_stream:
-    #     response = requests.post(DEEPGRAM_URL, headers=headers, json=payload, stream=True)
-    #     for chunk in response.iter_content(chunk_size=1024):
-    #         if chunk:
-    #             file_stream.write(chunk) # Write each chunk of audio data to the file
-    # print("Audio download complete")
-
-    # # Play the audio file
-    # audio = AudioSegment.from_file(audio_file_path)
-    # play(audio)
-
-    # # Delete the audio file after playback
-    # os.remove(audio_file_path)
-    # print("Audio file deleted")
 
 
 def process_input():
@@ -108,7 +74,7 @@ def process_input():
                         dg_connection.close()
                         print("Exiting Dexter...")
                     else:
-                      processCommand(utterance)
+                      process_command(utterance)
                     is_finals = []
                 else:
                     # These are useful if you need real time captioning and update what the Interim Results produced
@@ -184,7 +150,7 @@ def process_input():
         print(f"Could not open socket: {e}")
         return
     
-def greetUser():
+def greet_user():
     hour = int(time.strftime("%H"))
     if hour >= 0 and hour < 12:
         play_response("Good Morning Sir!")
@@ -195,7 +161,7 @@ def greetUser():
     play_response("The current time is " + time.strftime("%I:%M %p"))
     play_response("How do you want me to assist you today?")
     
-def processCommand(command):
+def process_command(command):
     
     if "vs code" in command.lower():
         os.system("code")
@@ -236,11 +202,11 @@ def processCommand(command):
             else:
                 play_response("Failed to fetch data from the API")
     else: 
-        response_ai = processAI(command)
+        response_ai = process_ai(command)
         play_response(response_ai) 
         
 
-def processAI(command):    
+def process_ai(command):    
                         client = OpenAI(
                         api_key=os.environ.get("OPENAI_API_KEY"),
                         )
@@ -260,7 +226,7 @@ if __name__=='__main__':
     
     # speak_asave_response_as_audio("Initializing Dexter...") # use cached audio
     # play_audio("initializing_audio.mp3")
-    # greetUser()
+    # greet_user()
     try: 
         print("Initializing Dexter...")
         play_response("Initializing Dexter, how can I assist you today?")
