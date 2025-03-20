@@ -5,7 +5,7 @@ import webbrowser
 import musicLibrary
 import time
 import logging
-import pygame
+# import pygame
 from deepgram.utils import verboselogs
 from openai import OpenAI
 from deepgram import (
@@ -32,24 +32,10 @@ DEEPGRAM_API_KEY = os.environ.get("DEEPGRAM_API_KEY")
 
 is_finals = []
 
-
-tts = TextToSpeech() 
-
-def play_response(response):
-    print("Dexter: " + response)
-    try:
-        tts.speak(response)
-    except Exception as e:
-        print("Error while playing response", e)
-        
-
-
-
 def process_input():
     
     try:
         deepgram: DeepgramClient = DeepgramClient()
-
         dg_connection = deepgram.listen.websocket.v("1")
 
         def on_open(self, open, **kwargs):
@@ -112,7 +98,6 @@ def process_input():
             interim_results=True,
             utterance_end_ms="1000",
             vad_events=True,
-            # Time in milliseconds of silence to wait for before finalizing speech
             endpointing=300,
         )
 
@@ -143,8 +128,6 @@ def process_input():
         dg_connection.finish()
 
         print("Finished")
-        # sleep(30)  # wait 30 seconds to see if there is any additional socket activity
-        # print("Really done!")
 
     except Exception as e:
         print(f"Could not open socket: {e}")
@@ -205,7 +188,6 @@ def process_command(command):
         response_ai = process_ai(command)
         play_response(response_ai) 
         
-
 def process_ai(command):    
                         client = OpenAI(
                         api_key=os.environ.get("OPENAI_API_KEY"),
@@ -221,7 +203,16 @@ def process_ai(command):
                          
                         return completion.choices[0].message.content
 
+tts = TextToSpeech() 
 
+def play_response(response):
+    print("Dexter: " + response)
+    try:
+        tts.speak(response)
+    except Exception as e:
+        print("Error while playing response", e)
+        
+        
 if __name__=='__main__':
     
     # speak_asave_response_as_audio("Initializing Dexter...") # use cached audio
